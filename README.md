@@ -23,3 +23,14 @@ Foundation branch contains base project structure, order-service bootstrap, comm
 docker compose up -d
 cd order-service
 mvn spring-boot:run
+```
+
+## Demo Credentials
+
+Use `POST /api/v1/auth/login` with one of these in-memory users:
+
+| Username | Password | Role |
+| --- | --- | --- |
+| `customer` | `customer123` | `CUSTOMER` |
+| `admin` | `admin123` | `ADMIN` |
+| `service` | `service123` | `SERVICE` |

@@ -15,6 +15,7 @@ import com.wajahat.ordersaga.order.dto.CreateOrderItemRequest;
 import com.wajahat.ordersaga.order.dto.CreateOrderRequest;
 import com.wajahat.ordersaga.order.dto.OrderResponse;
 import com.wajahat.ordersaga.order.exception.GlobalExceptionHandler;
+import com.wajahat.ordersaga.order.security.JwtTokenProvider;
 import com.wajahat.ordersaga.order.service.OrderService;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,6 +43,9 @@ class OrderControllerTest {
 
     @MockBean
     private OrderService orderService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
 
     @Test
     void createsOrder() throws Exception {
