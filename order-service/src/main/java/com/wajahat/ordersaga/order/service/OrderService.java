@@ -12,4 +12,8 @@ public interface OrderService {
     OrderResponse getOrder(UUID orderId);
 
     PageResponse<OrderResponse> getCustomerOrders(UUID customerId, Pageable pageable);
+
+    void confirmOrder(UUID orderId);
+
+    void cancelOrder(UUID orderId, String reason);
 }

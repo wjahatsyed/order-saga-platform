@@ -91,6 +91,10 @@ public class OrderEntity {
         return status;
     }
 
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
