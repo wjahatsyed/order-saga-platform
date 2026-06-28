@@ -1,0 +1,13 @@
+package com.wajahat.ordersaga.common.enums;
+
+public enum EventType {
+    ORDER_CREATED,
+    INVENTORY_RESERVED,
+    INVENTORY_REJECTED,
+    PAYMENT_COMPLETED,
+    PAYMENT_FAILED,
+    ORDER_CONFIRMED,
+    ORDER_CANCELLED,
+    INVENTORY_RELEASED,
+    PAYMENT_REFUNDED
+}
