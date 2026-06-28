@@ -80,6 +80,26 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
+    @Override
+    @Transactional
+    public void confirmOrder(UUID orderId) {
+        orderRepository.findById(orderId).ifPresent(order -> {
+            order.setStatus(OrderStatus.CONFIRMED);
+            orderRepository.save(order);
+            orderEventPublisher.publishOrderConfirmed(order);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void cancelOrder(UUID orderId, String reason) {
+        orderRepository.findById(orderId).ifPresent(order -> {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+            orderEventPublisher.publishOrderCancelled(order, reason);
+        });
+    }
+
     private BigDecimal calculateTotal(List<CreateOrderItemRequest> items) {
         return items.stream()
                 .map(item -> item.unitPrice().multiply(BigDecimal.valueOf(item.quantity())))

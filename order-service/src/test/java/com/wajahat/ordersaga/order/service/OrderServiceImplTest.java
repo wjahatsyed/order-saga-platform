@@ -18,6 +18,7 @@ import com.wajahat.ordersaga.order.repository.OrderRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,5 +71,35 @@ class OrderServiceImplTest {
         BusinessException exception = assertThrows(BusinessException.class, () -> orderService.createOrder(request));
 
         assertEquals("ORDER_ITEMS_REQUIRED", exception.getErrorCode());
+    }
+
+    @Test
+    void confirmOrder_ShouldUpdateStatusAndPublishEvent() {
+        UUID orderId = UUID.randomUUID();
+        OrderEntity order = new OrderEntity(UUID.randomUUID(), new BigDecimal("100.00"), OrderStatus.PENDING);
+        order.setId(orderId);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        orderService.confirmOrder(orderId);
+
+        assertEquals(OrderStatus.CONFIRMED, order.getStatus());
+        verify(orderRepository).save(order);
+        verify(orderEventPublisher).publishOrderConfirmed(order);
+    }
+
+    @Test
+    void cancelOrder_ShouldUpdateStatusAndPublishEvent() {
+        UUID orderId = UUID.randomUUID();
+        OrderEntity order = new OrderEntity(UUID.randomUUID(), new BigDecimal("100.00"), OrderStatus.PENDING);
+        order.setId(orderId);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        orderService.cancelOrder(orderId, "Test reason");
+
+        assertEquals(OrderStatus.CANCELLED, order.getStatus());
+        verify(orderRepository).save(order);
+        verify(orderEventPublisher).publishOrderCancelled(order, "Test reason");
     }
 }
