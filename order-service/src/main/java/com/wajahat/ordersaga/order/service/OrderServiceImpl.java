@@ -12,9 +12,12 @@ import com.wajahat.ordersaga.order.entity.OrderItemEntity;
 import com.wajahat.ordersaga.order.mapper.OrderMapper;
 import com.wajahat.ordersaga.order.publisher.OrderEventPublisher;
 import com.wajahat.ordersaga.order.repository.OrderRepository;
+import com.wajahat.ordersaga.order.config.CacheConstants;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -60,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConstants.ORDERS_CACHE, key = "#a0")
     public OrderResponse getOrder(UUID orderId) {
         return orderRepository.findById(orderId)
                 .map(orderMapper::toResponse)
@@ -68,6 +72,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = CacheConstants.CUSTOMER_ORDERS_CACHE, key = "#a0.toString() + #a1.pageNumber")
     public PageResponse<OrderResponse> getCustomerOrders(UUID customerId, Pageable pageable) {
         Page<OrderResponse> page = orderRepository.findByCustomerId(customerId, pageable)
                 .map(orderMapper::toResponse);
@@ -82,6 +87,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConstants.ORDERS_CACHE, key = "#a0")
     public void confirmOrder(UUID orderId) {
         orderRepository.findById(orderId).ifPresent(order -> {
             order.setStatus(OrderStatus.CONFIRMED);
@@ -92,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConstants.ORDERS_CACHE, key = "#a0")
     public void cancelOrder(UUID orderId, String reason) {
         orderRepository.findById(orderId).ifPresent(order -> {
             order.setStatus(OrderStatus.CANCELLED);
