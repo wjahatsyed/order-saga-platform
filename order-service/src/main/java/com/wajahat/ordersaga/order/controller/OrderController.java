@@ -42,17 +42,17 @@ public class OrderController {
 
     @Operation(summary = "Get an order by id")
     @GetMapping("/{orderId}")
-    public ApiResponse<OrderResponse> getOrder(@PathVariable("orderId") UUID orderId) {
-        return new ApiResponse<>(true, "Order retrieved", orderService.getOrder(orderId), Instant.now());
+    public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable("orderId") UUID orderId) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Order retrieved", orderService.getOrder(orderId), Instant.now()));
     }
 
     @Operation(summary = "Get customer orders")
     @GetMapping("/customers/{customerId}")
-    public ApiResponse<PageResponse<OrderResponse>> getCustomerOrders(
+    public ResponseEntity<ApiResponse<PageResponse<OrderResponse>>> getCustomerOrders(
             @PathVariable("customerId") UUID customerId,
             Pageable pageable
     ) {
         PageResponse<OrderResponse> response = orderService.getCustomerOrders(customerId, pageable);
-        return new ApiResponse<>(true, "Customer orders retrieved", response, Instant.now());
+        return ResponseEntity.ok(new ApiResponse<>(true, "Customer orders retrieved", response, Instant.now()));
     }
 }

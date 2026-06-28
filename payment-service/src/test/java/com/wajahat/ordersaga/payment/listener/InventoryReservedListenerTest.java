@@ -48,4 +48,19 @@ class InventoryReservedListenerTest {
 
         verify(kafkaTemplate).send(eq(KafkaTopics.PAYMENT_COMPLETED), eq(orderId.toString()), any(PaymentCompletedEvent.class));
     }
+
+    @Test
+    void handleInventoryReserved_ShouldPublishPaymentFailed() {
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        InventoryReservedEvent event = new InventoryReservedEvent(
+                UUID.randomUUID(), orderId, customerId, Instant.now()
+        );
+
+        org.mockito.Mockito.when(paymentGatewayClient.chargePayment(any(), any())).thenReturn(false);
+
+        listener.handleInventoryReserved(event);
+
+        verify(kafkaTemplate).send(eq(KafkaTopics.PAYMENT_FAILED), eq(orderId.toString()), any(PaymentFailedEvent.class));
+    }
 }

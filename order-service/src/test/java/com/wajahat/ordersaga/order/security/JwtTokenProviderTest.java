@@ -25,5 +25,30 @@ class JwtTokenProviderTest {
     @Test
     void rejectsInvalidToken() {
         assertFalse(jwtTokenProvider.validateToken("not-a-token"));
+        assertFalse(jwtTokenProvider.validateToken(""));
+    }
+
+    @Test
+    void rejectsExpiredToken() throws InterruptedException {
+        JwtTokenProvider shortLivedProvider = new JwtTokenProvider(
+                new JwtProperties("order-saga-demo-secret-key-for-jwt-signing-2026", 1)
+        );
+        String token = shortLivedProvider.generateToken("user", List.of(Role.CUSTOMER));
+        Thread.sleep(1100);
+        assertFalse(shortLivedProvider.validateToken(token));
+    }
+
+    @Test
+    void rejectsTokenWithWrongSignature() {
+        String token = jwtTokenProvider.generateToken("user", List.of(Role.CUSTOMER));
+        JwtTokenProvider otherProvider = new JwtTokenProvider(
+                new JwtProperties("other-secret-key-that-is-long-enough-for-hmac", 3600)
+        );
+        assertFalse(otherProvider.validateToken(token));
+    }
+
+    @Test
+    void rejectsMalformedToken() {
+        assertFalse(jwtTokenProvider.validateToken("not.a.token"));
     }
 }

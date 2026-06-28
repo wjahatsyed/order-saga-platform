@@ -11,8 +11,8 @@
 	<groupId>com.wajahat.ordersaga</groupId>
 	<artifactId>payment-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>payment-service</name>
+	<description>Payment service for order saga platform</description>
 	<url/>
 	<licenses>
 		<license/>

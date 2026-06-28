@@ -58,6 +58,47 @@ class SensitiveDataSanitizerTest {
         assertEquals(java.util.List.of("a", "b"), sanitizer.sanitize(array));
     }
 
+    @Test
+    void sanitizeRecordWithException() {
+        record FaultyRecord(String name) {
+            @Override
+            public String name() {
+                throw new RuntimeException("Reflective access failure");
+            }
+        }
+        Object sanitized = sanitizer.sanitize(new FaultyRecord("test"));
+        assertEquals(Map.of("name", "<unavailable>"), sanitized);
+    }
+
+    @Test
+    void sanitizeNestedStructures() {
+        Map<String, Object> nested = Map.of(
+                "outer", Map.of("password", "secret", "data", "info"),
+                "list", java.util.List.of(Map.of("token", "abc"))
+        );
+        Object sanitized = sanitizer.sanitize(nested);
+        Map<String, Object> expected = Map.of(
+                "outer", Map.of("password", "****", "data", "info"),
+                "list", java.util.List.of(Map.of("token", "****"))
+        );
+        assertEquals(expected, sanitized);
+    }
+
+    @Test
+    void sanitizeEnum() {
+        assertEquals(com.wajahat.ordersaga.common.enums.Role.CUSTOMER, sanitizer.sanitize(com.wajahat.ordersaga.common.enums.Role.CUSTOMER));
+    }
+
+    @Test
+    void sanitizeLong() {
+        assertEquals(123L, sanitizer.sanitize(123L));
+    }
+
+    @Test
+    void sanitizeBoolean() {
+        assertEquals(false, sanitizer.sanitize(false));
+    }
+
     private record TokenResponse(String token, String tokenType) {
     }
 }

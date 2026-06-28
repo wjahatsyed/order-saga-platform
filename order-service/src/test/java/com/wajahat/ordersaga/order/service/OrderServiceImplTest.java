@@ -89,6 +89,17 @@ class OrderServiceImplTest {
     }
 
     @Test
+    void confirmOrder_ShouldDoNothing_WhenNotFound() {
+        UUID orderId = UUID.randomUUID();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        orderService.confirmOrder(orderId);
+
+        verify(orderRepository, org.mockito.Mockito.never()).save(any());
+        verify(orderEventPublisher, org.mockito.Mockito.never()).publishOrderConfirmed(any());
+    }
+
+    @Test
     void cancelOrder_ShouldUpdateStatusAndPublishEvent() {
         UUID orderId = UUID.randomUUID();
         OrderEntity order = new OrderEntity(UUID.randomUUID(), new BigDecimal("100.00"), OrderStatus.PENDING);
@@ -101,6 +112,17 @@ class OrderServiceImplTest {
         assertEquals(OrderStatus.CANCELLED, order.getStatus());
         verify(orderRepository).save(order);
         verify(orderEventPublisher).publishOrderCancelled(order, "Test reason");
+    }
+
+    @Test
+    void cancelOrder_ShouldDoNothing_WhenNotFound() {
+        UUID orderId = UUID.randomUUID();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        orderService.cancelOrder(orderId, "Test reason");
+
+        verify(orderRepository, org.mockito.Mockito.never()).save(any());
+        verify(orderEventPublisher, org.mockito.Mockito.never()).publishOrderCancelled(any(), any());
     }
 
     @Test
@@ -132,7 +154,7 @@ class OrderServiceImplTest {
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 10);
         OrderEntity order = new OrderEntity(customerId, new BigDecimal("100.00"), OrderStatus.PENDING);
         order.setId(UUID.randomUUID());
-        org.springframework.data.domain.Page<OrderEntity> page = new org.springframework.data.domain.PageImpl<>(List.of(order));
+        org.springframework.data.domain.Page<OrderEntity> page = new org.springframework.data.domain.PageImpl<>(List.of(order), pageable, 1);
 
         when(orderRepository.findByCustomerId(customerId, pageable)).thenReturn(page);
         when(orderMapper.toResponse(order)).thenReturn(new OrderResponse(order.getId(), customerId, order.getTotalAmount(), OrderStatus.PENDING, Instant.now()));
@@ -141,6 +163,8 @@ class OrderServiceImplTest {
 
         assertEquals(1, response.content().size());
         assertEquals(0, response.page());
+        assertEquals(10, response.size());
         assertEquals(1, response.totalElements());
+        assertEquals(1, response.totalPages());
     }
 }

@@ -40,7 +40,7 @@ public class OrderItemEntity {
     }
 
     @PrePersist
-    void prePersist() {
+    public void prePersist() {
         if (id == null) {
             id = UUID.randomUUID();
         }
