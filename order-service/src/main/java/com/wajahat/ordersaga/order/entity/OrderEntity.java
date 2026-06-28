@@ -52,7 +52,7 @@ public class OrderEntity {
     }
 
     @PrePersist
-    void prePersist() {
+    public void prePersist() {
         Instant now = Instant.now();
         if (id == null) {
             id = UUID.randomUUID();
@@ -62,7 +62,7 @@ public class OrderEntity {
     }
 
     @PreUpdate
-    void preUpdate() {
+    public void preUpdate() {
         updatedAt = Instant.now();
     }
 

@@ -3,6 +3,7 @@ package com.wajahat.ordersaga.order.auth;
 import com.wajahat.ordersaga.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import java.time.Instant;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return new ApiResponse<>(true, "Login successful", authService.login(request), Instant.now());
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", authService.login(request), Instant.now()));
     }
 }
