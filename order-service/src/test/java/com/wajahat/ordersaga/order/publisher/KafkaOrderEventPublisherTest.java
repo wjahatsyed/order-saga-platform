@@ -51,4 +51,28 @@ class KafkaOrderEventPublisherTest {
         assertEquals(customerId, capturedEvent.customerId());
         assertEquals(1, capturedEvent.items().size());
     }
+
+    @Test
+    void publishOrderConfirmed_ShouldSendKafkaMessage() {
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        OrderEntity order = new OrderEntity(customerId, new BigDecimal("100.00"), OrderStatus.CONFIRMED);
+        order.setId(orderId);
+
+        publisher.publishOrderConfirmed(order);
+
+        verify(kafkaTemplate).send(eq(KafkaTopics.ORDER_CONFIRMED), eq(orderId.toString()), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void publishOrderCancelled_ShouldSendKafkaMessage() {
+        UUID orderId = UUID.randomUUID();
+        UUID customerId = UUID.randomUUID();
+        OrderEntity order = new OrderEntity(customerId, new BigDecimal("100.00"), OrderStatus.CANCELLED);
+        order.setId(orderId);
+
+        publisher.publishOrderCancelled(order, "reason");
+
+        verify(kafkaTemplate).send(eq(KafkaTopics.ORDER_CANCELLED), eq(orderId.toString()), org.mockito.ArgumentMatchers.any());
+    }
 }

@@ -31,6 +31,25 @@ class RequestResponseLoggingAspectTest {
     }
 
     @Test
+    void reuseExistingTraceId() throws Throwable {
+        RequestResponseLoggingAspect aspect = new RequestResponseLoggingAspect(new SensitiveDataSanitizer());
+        MDC.put("traceId", "existing-id");
+        ProceedingJoinPoint joinPoint = joinPoint("ok");
+
+        aspect.logControllerCall(joinPoint);
+
+        assertEquals("existing-id", MDC.get("traceId"));
+    }
+
+    @Test
+    void useDefaultConstructor() throws Throwable {
+        RequestResponseLoggingAspect aspect = new RequestResponseLoggingAspect();
+        ProceedingJoinPoint joinPoint = joinPoint("ok");
+        Object response = aspect.logControllerCall(joinPoint);
+        assertEquals("ok", response);
+    }
+
+    @Test
     void rethrowsControllerException() throws Throwable {
         RequestResponseLoggingAspect aspect = new RequestResponseLoggingAspect(new SensitiveDataSanitizer());
         ProceedingJoinPoint joinPoint = joinPoint(new IllegalStateException("boom"));
