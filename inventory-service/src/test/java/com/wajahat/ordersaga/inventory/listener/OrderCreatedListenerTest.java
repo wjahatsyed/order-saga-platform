@@ -35,11 +35,14 @@ class OrderCreatedListenerTest {
     @Mock
     private KafkaTemplate<String, Object> kafkaTemplate;
 
+    @Mock
+    private com.wajahat.ordersaga.inventory.service.InventoryAvailabilityClient inventoryAvailabilityClient;
+
     private OrderCreatedListener listener;
 
     @BeforeEach
     void setUp() {
-        listener = new OrderCreatedListener(inventoryRepository, kafkaTemplate);
+        listener = new OrderCreatedListener(inventoryRepository, kafkaTemplate, inventoryAvailabilityClient);
     }
 
     @Test
@@ -55,6 +58,7 @@ class OrderCreatedListenerTest {
         InventoryEntity inventory = new InventoryEntity(productId, 10);
 
         when(inventoryRepository.findById(productId)).thenReturn(Optional.of(inventory));
+        when(inventoryAvailabilityClient.checkAvailability(any(), anyInt())).thenReturn(true);
 
         listener.handleOrderCreated(event);
 
@@ -76,6 +80,7 @@ class OrderCreatedListenerTest {
         InventoryEntity inventory = new InventoryEntity(productId, 10);
 
         when(inventoryRepository.findById(productId)).thenReturn(Optional.of(inventory));
+        when(inventoryAvailabilityClient.checkAvailability(any(), anyInt())).thenReturn(true);
 
         listener.handleOrderCreated(event);
 

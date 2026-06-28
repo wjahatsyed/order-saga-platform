@@ -20,23 +20,20 @@ import java.util.UUID;
 public class InventoryReservedListener {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final com.wajahat.ordersaga.payment.service.PaymentGatewayClient paymentGatewayClient;
 
     @KafkaListener(topics = KafkaTopics.INVENTORY_RESERVED, groupId = "${spring.kafka.consumer.group-id}")
     public void handleInventoryReserved(InventoryReservedEvent event) {
         log.info("Processing payment for order: {}", event.orderId());
         
-        // Simulate payment: fail if customerId ends with "000000000000" (just a placeholder logic)
-        // Or if we had amount in the event, but we don't.
-        // The requirement says: "simulate success unless amount <= 0".
-        // Since we don't have amount in InventoryReservedEvent, we'll assume a default amount or 
-        // normally we should have included it.
-        
         BigDecimal amount = BigDecimal.valueOf(100.0); // Dummy amount for simulation
         
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            publishPaymentFailed(event.orderId(), event.customerId(), amount, "Invalid amount");
-        } else {
+        boolean success = paymentGatewayClient.chargePayment(event.customerId(), amount);
+        
+        if (success) {
             publishPaymentCompleted(event.orderId(), event.customerId(), amount);
+        } else {
+            publishPaymentFailed(event.orderId(), event.customerId(), amount, "Payment failed via gateway");
         }
     }
 

@@ -24,6 +24,7 @@ public class OrderCreatedListener {
 
     private final InventoryRepository inventoryRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final com.wajahat.ordersaga.inventory.service.InventoryAvailabilityClient inventoryAvailabilityClient;
 
     @KafkaListener(topics = KafkaTopics.ORDER_CREATED, groupId = "${spring.kafka.consumer.group-id}")
     @Transactional
@@ -32,6 +33,13 @@ public class OrderCreatedListener {
         
         try {
             for (OrderItemPayload item : event.items()) {
+                // Check external availability first (Resilience4j)
+                boolean available = inventoryAvailabilityClient.checkAvailability(item.productId(), item.quantity());
+                if (!available) {
+                    publishRejected(event.orderId(), event.customerId(), "External inventory check failed for product: " + item.productId());
+                    return;
+                }
+
                 InventoryEntity inventory = inventoryRepository.findById(item.productId())
                         .orElseThrow(() -> new RuntimeException("Product not found: " + item.productId()));
                 

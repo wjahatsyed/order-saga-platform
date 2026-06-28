@@ -24,11 +24,14 @@ class InventoryReservedListenerTest {
     @Mock
     private KafkaTemplate<String, Object> kafkaTemplate;
 
+    @Mock
+    private com.wajahat.ordersaga.payment.service.PaymentGatewayClient paymentGatewayClient;
+
     private InventoryReservedListener listener;
 
     @BeforeEach
     void setUp() {
-        listener = new InventoryReservedListener(kafkaTemplate);
+        listener = new InventoryReservedListener(kafkaTemplate, paymentGatewayClient);
     }
 
     @Test
@@ -38,6 +41,8 @@ class InventoryReservedListenerTest {
         InventoryReservedEvent event = new InventoryReservedEvent(
                 UUID.randomUUID(), orderId, customerId, Instant.now()
         );
+
+        org.mockito.Mockito.when(paymentGatewayClient.chargePayment(any(), any())).thenReturn(true);
 
         listener.handleInventoryReserved(event);
 

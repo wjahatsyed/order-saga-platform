@@ -31,3 +31,23 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryAvailability:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        registerHealthIndicator: true
+  retry:
+    instances:
+      inventoryAvailability:
+        maxAttempts: 3
+        waitDuration: 1s
