@@ -26,6 +26,11 @@ springdoc:
     path: /swagger-ui.html
   paths-to-match: /api/v1/**
 
+security:
+  jwt:
+    secret: order-saga-demo-secret-key-for-jwt-signing-2026
+    expiration-seconds: 3600
+
 management:
   endpoints:
     web:
