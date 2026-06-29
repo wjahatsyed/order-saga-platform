@@ -17,14 +17,17 @@ spring:
       properties:
         spring.json.trusted.packages: "com.wajahat.ordersaga.common.event"
   datasource:
-    url: jdbc:postgresql://localhost:5432/inventory_saga
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/order_saga
+    username: order_saga
+    password: order_saga
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
 
 management:
   endpoints:

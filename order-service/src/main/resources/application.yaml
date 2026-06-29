@@ -18,8 +18,8 @@ spring:
         spring.json.trusted.packages: "com.wajahat.ordersaga.common.event"
   datasource:
     url: jdbc:postgresql://localhost:5432/order_saga
-    username: postgres
-    password: postgres
+    username: order_saga
+    password: order_saga
     driver-class-name: org.postgresql.Driver
   data:
     redis:
